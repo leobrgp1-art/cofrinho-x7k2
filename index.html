@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#ff5a1f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -59,11 +59,16 @@ html, body {
   color: var(--ink);
   font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   overflow-x: clip;
+  touch-action: manipulation;
 }
 
 button, input, select, textarea {
   font: inherit;
   color: inherit;
+}
+
+button, .pad button, .qk button, .seg button, .step button, .av, .nav button {
+  touch-action: manipulation;
 }
 
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
@@ -78,7 +83,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   padding: 16px 18px 124px;
   min-height: 100dvh;
   position: relative;
-  touch-action: pan-y pinch-zoom;
+  touch-action: manipulation;
   overflow-x: clip;
 }
 
@@ -748,6 +753,7 @@ input, select, textarea {
   border-radius: 14px;
   padding: 13px 14px;
   width: 100%;
+  font-size: 16px;
 }
 
 textarea {
@@ -764,7 +770,7 @@ textarea {
 
 .ent-meta input {
   padding: 7px 10px;
-  font-size: 12px;
+  font-size: 16px;
   border-radius: 11px;
   min-width: 0;
 }
@@ -1426,7 +1432,7 @@ span.st.cheer-in { animation: stPop 0.45s cubic-bezier(0.2, 1.2, 0.4, 1) both; }
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: pan-x pan-y pinch-zoom;
+  touch-action: pan-x pan-y;
 }
 
 .cats::-webkit-scrollbar { display: none; }
@@ -4278,6 +4284,16 @@ idle();
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
+/* Anti-zoom acidental (iOS): pinch e double-tap, sem bloquear cliques */
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+(() => {
+  let lastTouch = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouch < 300 && !e.target.closest('button, input, textarea, select, .pad, .qk, .seg, .nav, .av, .cats, #sheet')) e.preventDefault();
+    lastTouch = now;
+  }, { passive: false });
+})();
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (err) {}
 </script>
 </body>
